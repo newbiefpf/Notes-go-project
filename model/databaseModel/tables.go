@@ -12,6 +12,7 @@ type User struct {
 	Sex      int    `gorm:"column:sex;type:int;" json:"sex"`
 	Phone    string `gorm:"column:tel;type:varchar(20);" json:"phone"`
 	Article  []Article
+	Discuss  Discuss
 }
 type Article struct {
 	gorm.Model
@@ -29,18 +30,21 @@ type Article struct {
 type ArticleLink struct {
 	gorm.Model
 	ArticleID uint
-	StepOn    int    `gorm:"column:stepOn;type:int;" json:"stepOn"`
-	GiveLike  int    `gorm:"column:giveLike;type:int;" json:"giveLike"`
-	Discuss   string `gorm:"column:discuss;type:varchar(200);" json:"discuss"`
+	StepOn    int `gorm:"column:stepOn;type:int;" json:"stepOn"`
+	GiveLike  int `gorm:"column:giveLike;type:int;" json:"giveLike"`
+	Discuss   Discuss
 }
 type Discuss struct {
 	gorm.Model
-	ArticleID uint
-	Comment   string `gorm:"column:comment;type:varchar(500);" json:"comment"`
-	Status    int    `gorm:"column:status;type:int;" json:"status"`
+	ArticleLinkID uint
+	UserID        uint
+	Comment       string `gorm:"column:comment;type:varchar(500);" json:"comment"`
+	Status        int    `gorm:"column:status;type:int;" json:"status"`
 }
 
 type Classify struct {
 	gorm.Model
 	Label string `gorm:"column:label;type:varchar(200);" json:"label"`
 }
+
+//设计好表的对应关系（多对多，一对一，一对多，多对一）
