@@ -6,10 +6,11 @@ import (
 )
 
 type Config struct {
-	Title     string
-	App       app
-	MysqlLink mysqlLink
-	LogFile   logFile
+	Title        string
+	App          app
+	MysqlLink    mysqlLink
+	LogFile      logFile
+	Jsonwebtoken jsonwebtoken
 }
 
 type app struct {
@@ -29,6 +30,9 @@ type mysqlLink struct {
 type logFile struct {
 	LogRouterPath string `toml:"Log_ROUTER_PATH"`
 	FileName      string `toml:"File_Name"`
+}
+type jsonwebtoken struct {
+	JwtSecret string
 }
 
 var ConfigToml Config

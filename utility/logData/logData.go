@@ -1,8 +1,7 @@
-package logs
+package logData
 
 import (
 	project "Notes-go-project/config"
-	"github.com/gin-gonic/gin"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
@@ -12,7 +11,7 @@ import (
 )
 
 // 日志记录到文件
-func LogInit() gin.HandlerFunc {
+func WriterLog() *logrus.Logger {
 	// 实例化
 	logger := logrus.New()
 	project.ReadConfig()
@@ -20,34 +19,13 @@ func LogInit() gin.HandlerFunc {
 	fileInfo := project.ConfigToml.LogFile
 	logFilePath := fileInfo.LogRouterPath
 	logFileName := fileInfo.FileName
-
 	// 日志文件
 	fileName := path.Join(logFilePath, logFileName)
-
-	// 设置日志等级
-	//logger.SetLevel(logrus.DebugLevel)
 	// 设置日志输出到什么地方去
 	// 将日志输出到标准输出，就是直接在控制台打印出来。
 	logger.SetOutput(os.Stdout)
 	// 设置为true则显示日志在代码什么位置打印的
 	logger.SetReportCaller(true)
-
-	// 设置日志以json格式输出， 如果不设置默认以text格式输出
-	//logger.SetFormatter(&logrus.JSONFormatter{})
-
-	// 打印日志
-	//logger.Debug("调试信息")
-	//logger.Info("提示信息")
-	//logger.Warn("警告信息")
-	//logger.Error("错误信息")
-	//logger.Panic("致命错误")
-	//
-	// 为日志加上字段信息，log.Fields其实就是map[string]interface{}类型的别名
-	//logger.WithFields(logger.Fields{
-	//	"user_id":    1001,
-	//	"ip":         "192.168.0。100",
-	//	"request_id": "ec2bf8e55a11474392f8867e92624e04",
-	//}).Info("用户登陆失败.")
 	// 写入文件
 	src, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -61,8 +39,6 @@ func LogInit() gin.HandlerFunc {
 	logWriter, err := rotatelogs.New(
 		// 分割后的文件名称
 		fileName+".%Y%m%d.log",
-		// 生成软链，指向最新日志文件
-		rotatelogs.WithLinkName(fileName),
 		// 设置最大保存时间(7天)
 		rotatelogs.WithMaxAge(7*24*time.Hour),
 		// 设置日志切割时间间隔(1天)
@@ -81,30 +57,5 @@ func LogInit() gin.HandlerFunc {
 	})
 	// 新增 Hook
 	logger.AddHook(lfHook)
-	return func(c *gin.Context) {
-		// 开始时间
-		startTime := time.Now()
-		// 处理请求
-		c.Next()
-		// 结束时间
-		endTime := time.Now()
-		// 执行时间
-		latencyTime := endTime.Sub(startTime)
-		// 请求方式
-		reqMethod := c.Request.Method
-		// 请求路由
-		reqUri := c.Request.RequestURI
-		// 状态码
-		statusCode := c.Writer.Status()
-		// 请求IP
-		clientIP := c.ClientIP()
-		// 日志格式
-		logger.WithFields(logrus.Fields{
-			"status_code":  statusCode,
-			"latency_time": latencyTime,
-			"client_ip":    clientIP,
-			"req_method":   reqMethod,
-			"req_uri":      reqUri,
-		}).Info("api地址")
-	}
+	return logger
 }

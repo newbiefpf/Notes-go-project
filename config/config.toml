@@ -20,3 +20,5 @@ readRecord = "TOML读取成功"
 [logFile]
     LOG_ROUTER_PATH="logFile/logs"
     File_Name="LogFile"
+[jsonwebtoken]
+    jwtSecret="newbie"
