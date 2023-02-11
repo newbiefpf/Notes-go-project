@@ -19,7 +19,11 @@ type LoginReturn struct {
 }
 
 func ProjectTese(c *gin.Context) {
-	logData.WriterLog().Info("SADFSAFASDFASDFAAAAAAAAAAAAAAAAA")
+	c.JSON(200, returnBody.OK.WithMsg("pong"))
+}
+
+func Ping(c *gin.Context) {
+	c.JSON(200, returnBody.OK.WithMsg("pong"))
 }
 
 func Login(c *gin.Context) {
@@ -27,7 +31,7 @@ func Login(c *gin.Context) {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	}
-	_ = c.BindJSON(&body)
+	_ = c.ShouldBind(&body)
 	username := body.Username
 	password := body.Password
 
