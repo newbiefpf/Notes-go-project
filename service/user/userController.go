@@ -14,12 +14,36 @@ import (
 
 var db = databaseConnection.GetDB()
 
-type LoginReturn struct {
-	Token string `json:"token"`
+type Set map[string]interface{}
+
+func (s Set) Has(key string) bool {
+	_, ok := s[key]
+	return ok
+}
+
+func (s Set) Add(key string) {
+	var dataInfo = make(map[string]interface{})
+	dataInfo["count"] = "123"
+	dataInfo["page"] = "pag213e"
+	dataInfo["list"] = "23"
+	dataInfo["classify"] = "213"
+	s[key] = dataInfo
+
+}
+
+func (s Set) Delete(key string) {
+	delete(s, key)
 }
 
 func ProjectTese(c *gin.Context) {
-	c.JSON(200, returnBody.OK.WithMsg("pong"))
+
+	s := make(Set)
+	s.Add("Tom")
+	s.Add("Sam")
+	s.Has("Tom")
+	s.Has("Jack")
+
+	c.JSON(200, returnBody.OK.WithData(s))
 }
 
 func Ping(c *gin.Context) {
@@ -40,9 +64,11 @@ func Login(c *gin.Context) {
 			var user databaseModel.User
 			result := db.Where("username = ? AND password = ?", username, MD5.ChangeMD5(password)).First(&user)
 			if result.Error == nil {
+				LoginReturn := make(map[string]interface{})
 				token, _ := tools.GenerateToken(username, password)
-				resBody := LoginReturn{token}
-				c.JSON(200, returnBody.OK.WithData(resBody))
+				LoginReturn["token"] = token
+				LoginReturn["user"] = user
+				c.JSON(200, returnBody.OK.WithData(LoginReturn))
 			} else {
 				logData.WriterLog().Error(result.Error)
 				c.JSON(200, returnBody.Err.WithMsg("登录失败，请重试！！！"))

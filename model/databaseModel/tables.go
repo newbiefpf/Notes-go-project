@@ -17,11 +17,12 @@ type User struct {
 	Sex      int    `gorm:"column:sex;type:int;" json:"sex"`
 	Phone    string `gorm:"column:tel;type:varchar(20);" json:"phone"`
 	Article  []Article
-	Discuss  Discuss
+	Discuss  []Discuss
+	Classify []Classify
 }
 type Article struct {
 	gorm.Model
-	UserID      uint   ` json:"userID" required:"true"  placeholder:"请重新登录"`
+	UserID      uint   `gorm:"column:user_id;"json:"userId" required:"true"  placeholder:"请重新登录"`
 	Title       string `gorm:"column:title;type:varchar(36);" json:"title" required:"true"  placeholder:"请输入标题"`
 	ImgUrl      string `gorm:"column:imgUrl;type:varchar(500);" json:"imgUrl" `
 	Abstract    string `gorm:"column:abstract;type:varchar(36);" json:"abstract" required:"true"  placeholder:"请输入简单描述"`
@@ -29,6 +30,7 @@ type Article struct {
 	ContentHtml string `gorm:"column:contentHtml;type:MEDIUMTEXT;" json:"contentHtml" required:"true"  placeholder:"请输入具体类容"`
 	Public      string `gorm:"column:public;varchar(200);" json:"public"`
 	Classify    string `gorm:"column:classify;varchar(200);" json:"classify"`
+	SortTime    int64  `gorm:"column:sortTime;varchar(200);type:bigint;" json:"sortTime"`
 	ArticleLink []ArticleLink
 }
 
@@ -50,7 +52,8 @@ type Discuss struct {
 
 type Classify struct {
 	gorm.Model
-	Label string `gorm:"column:label;type:varchar(200);" json:"label"`
+	UserID uint
+	Label  string `gorm:"column:label;type:varchar(200);" json:"label"`
 }
 
 type EmailList struct {

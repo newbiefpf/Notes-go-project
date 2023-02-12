@@ -2,21 +2,23 @@ package article
 
 import (
 	"Notes-go-project/model/databaseModel"
-	"Notes-go-project/utility/changePage"
 	"Notes-go-project/utility/databaseConnection"
 	"Notes-go-project/utility/logData"
 	"Notes-go-project/utility/returnBody"
 	"github.com/gin-gonic/gin"
 	"strconv"
+	"time"
 )
 
 var db = databaseConnection.GetDB()
 
 func CreateArticle(c *gin.Context) {
 	var article databaseModel.Article
-	_ = c.BindJSON(&article)
+	_ = c.ShouldBind(&article)
 	flag, message := databaseModel.Validator(&article)
 	if flag {
+		currentTime := time.Now().UnixNano()
+		article.SortTime = currentTime
 		result := db.Create(&article)
 		logData.WriterLog().Info(&article)
 		if result.Error == nil {
@@ -50,6 +52,18 @@ func UpadteArticle(c *gin.Context) {
 		return
 	}
 }
+
+func UpadteArticleType(c *gin.Context) {
+	var article databaseModel.Article
+	_ = c.BindJSON(&article)
+	result := db.Model(&article).Where("id = ? ", article.ID).Update("classify", article.Classify)
+	if result.Error == nil {
+		c.JSON(200, returnBody.OK.WithMsg("修改成功！！！"))
+	} else {
+		c.JSON(200, returnBody.Err.WithMsg("修改失败，请重试！！！"))
+	}
+}
+
 func FindArticle(c *gin.Context) {
 	var article databaseModel.Article
 	id := c.Param("id")
@@ -84,23 +98,42 @@ func DeleteArticle(c *gin.Context) {
 }
 func ArticlePrivateList(c *gin.Context) {
 	page, _ := strconv.Atoi(c.Query("page"))
-	var article []databaseModel.Article
+	//var article []databaseModel.Article
+
+	var classify []databaseModel.Classify
+	var errType int32
 	var count int64
-	result := db.Scopes(changePage.Paginate(page, 4)).Find(&article).Count(&count)
+	classifyRes := db.Where("user_id = ?", 9).Find(&classify)
 
-	if result.Error == nil {
-		if len(article) >= 1 {
-			var dataInfo = make(map[string]interface{})
-			dataInfo["count"] = count
-			dataInfo["page"] = page
-			dataInfo["list"] = article
-			c.JSON(200, returnBody.OK.WithData(dataInfo))
-		} else {
-			c.JSON(200, returnBody.Err.WithMsg("没有相关记录，请重试！！！"))
+	Arr := make([]interface{}, classifyRes.RowsAffected)
+	if classifyRes.Error == nil {
+		for index, _ := range classify {
+			var results []map[string]interface{}
+			type Set map[string]interface{}
+			s := make(Set)
+			result := db.Table("article").Where("deleted_at is null").Order("sortTime desc").Count(&count).Where("classify = ?", classify[index].ID).Find(&results)
+			s["id"] = strconv.Itoa(int(classify[index].ID))
+			s["children"] = results
+			s["classify"] = classify[index].Label
+			if result.Error != nil {
+				errType = 0
+				break
+			} else {
+				errType = 1
+			}
+			Arr[index] = s
+
 		}
+	}
+	if errType == 1 {
+		var dataInfo = make(map[string]interface{})
+		dataInfo["count"] = count
+		dataInfo["page"] = page
+		dataInfo["list"] = Arr
 
+		c.JSON(200, returnBody.OK.WithData(dataInfo))
 	} else {
-		logData.WriterLog().Error(result.Error)
+
 		c.JSON(200, returnBody.Err.WithMsg("查询失败，请重试！！！"))
 		return
 	}
