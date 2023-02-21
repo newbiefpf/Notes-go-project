@@ -31,8 +31,8 @@ func LaunchProject() {
 		v1.GET("/articleList", article.ArticlePrivateList)
 		//修改文章
 		v1.POST("/article", article.UpadteArticle)
-		//修改文章类型
-		v1.POST("/articleType", article.UpadteArticleType)
+		//修改文章类型和排序
+		v1.POST("/sortType", article.ArticleTypeandSort)
 		//修改文章
 		v1.GET("/article/:id", article.FindArticle)
 		//删除文章
