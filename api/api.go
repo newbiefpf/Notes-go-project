@@ -7,6 +7,7 @@ import (
 	"Notes-go-project/utility/middleware/JWT"
 	"Notes-go-project/utility/middleware/logs"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func LaunchProject() {
@@ -19,6 +20,10 @@ func LaunchProject() {
 	r.GET("/sendCode", user.SendCode)
 	//注册
 	r.PUT("/register", user.Register)
+	r.GET("/chicken", user.ChickenSoup)
+
+	//访问文件夹
+	r.StaticFS("/images", http.Dir("./files/images"))
 	//需要token的分组
 	v1 := r.Group("/api").Use(JWT.JWT())
 	{
@@ -35,6 +40,8 @@ func LaunchProject() {
 		v1.POST("/sortType", article.ArticleTypeandSort)
 		//修改文章
 		v1.GET("/article/:id", article.FindArticle)
+		//上传图片
+		v1.POST("/uploadImages", article.UploadImages)
 		//删除文章
 		v1.DELETE("/article/:id", article.DeleteArticle)
 

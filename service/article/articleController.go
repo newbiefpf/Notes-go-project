@@ -7,7 +7,11 @@ import (
 	"Notes-go-project/utility/returnBody"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"math/rand"
+	"os"
+	"path"
 	"strconv"
+	"time"
 )
 
 var db = databaseConnection.GetDB()
@@ -268,4 +272,36 @@ func ArticlePrivateList(c *gin.Context) {
 		return
 	}
 
+}
+
+func UploadImages(c *gin.Context) {
+	c.Request.ParseMultipartForm(32 << 20)
+	//获取所有上传文件信息
+	form, err := c.MultipartForm()
+	files := form.File["file"]
+	if err != nil {
+		c.JSON(200, returnBody.Err.WithMsg("读取失败，请重试！！！"))
+		return
+	}
+	urlList := make([]string, len(files))
+	var uploadir string
+	//定义文件保存地址
+	uploadir = "./files/images/"
+	_, err = os.Stat(uploadir)
+	if os.IsNotExist(err) {
+		os.Mkdir(uploadir, os.ModePerm)
+	}
+	for i, file := range files {
+		//fileName 脱敏
+		fileId := strconv.FormatInt(time.Now().Unix(), 10) + strconv.Itoa(rand.Intn(999999-100000)+10000)
+		newFileName := fileId + path.Ext(file.Filename)
+		dst := uploadir + newFileName
+		uplouderr := c.SaveUploadedFile(file, dst)
+		urlList[i] = "http://localhost:8888/images/" + newFileName
+		if uplouderr != nil {
+			c.JSON(200, returnBody.Err.WithMsg("存储失败，请重试！！！"))
+			return
+		}
+	}
+	c.JSON(200, returnBody.OK.WithData(urlList))
 }

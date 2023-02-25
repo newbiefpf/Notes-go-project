@@ -10,6 +10,7 @@ import (
 	"Notes-go-project/utility/returnBody"
 	"Notes-go-project/utility/verificationCode"
 	"github.com/gin-gonic/gin"
+	"github.com/kirinlabs/HttpRequest"
 )
 
 var db = databaseConnection.GetDB()
@@ -48,6 +49,17 @@ func ProjectTese(c *gin.Context) {
 
 func Ping(c *gin.Context) {
 	c.JSON(200, returnBody.OK.WithMsg("pong"))
+}
+
+func ChickenSoup(c *gin.Context) {
+	req := HttpRequest.NewRequest().Debug(true).SetTimeout(5)
+	resp, _ := req.Get("http://yichen.api.z7zz.cn/api/dujitang.php", nil)
+	body, err := resp.Body()
+	if err != nil {
+		c.JSON(200, returnBody.Err.WithMsg("没有鸡汤了，请重试！！！"))
+		return
+	}
+	c.JSON(200, returnBody.OK.WithData(string(body)))
 }
 
 func Login(c *gin.Context) {
