@@ -6,22 +6,25 @@ import (
 )
 
 var jwtSecret = []byte("newbie") //配置文件中自己配置的
+var userId *int
 
 // Claims是一些用户信息状态和额外的jwt参数
 type Claims struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+	UserId   int    `json:"user_id"`
 	jwt.StandardClaims
 }
 
 // 根据用户的用户名和密码参数token
-func GenerateToken(username, password string) (string, error) {
+func GenerateToken(username, password string, id int) (string, error) {
 	nowTime := time.Now()
 	expireTime := nowTime.Add(time.Hour * 24).Unix()
 
 	claims := Claims{
 		Username: username,
 		Password: password,
+		UserId:   id,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expireTime, // 过期时间
 			Issuer:    "newbie",   //指定发行人

@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+var UserId int
+
 func JWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
@@ -19,10 +21,13 @@ func JWT() gin.HandlerFunc {
 			// 解析token
 			newToken := strings.TrimSpace(strings.Trim(token, "Bearer"))
 			claims, err := tools.ParseToken(newToken)
+
 			if err != nil {
 				code = true
 			} else if time.Now().Unix() > claims.ExpiresAt {
 				code = true
+			} else {
+				UserId = claims.UserId
 			}
 		}
 		if code {
