@@ -6,9 +6,11 @@ import (
 	"Notes-go-project/utility/databaseConnection"
 	"Notes-go-project/utility/loaclDatabase"
 	"Notes-go-project/utility/logData"
+	"Notes-go-project/utility/middleware/JWT"
 	"Notes-go-project/utility/middleware/JWT/tools"
 	"Notes-go-project/utility/returnBody"
 	"Notes-go-project/utility/verificationCode"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/kirinlabs/HttpRequest"
 )
@@ -48,6 +50,9 @@ func ProjectTese(c *gin.Context) {
 }
 
 func Ping(c *gin.Context) {
+	cs := JWT.UserId
+
+	fmt.Println(cs)
 	c.JSON(200, returnBody.OK.WithMsg("pong"))
 }
 
@@ -77,7 +82,7 @@ func Login(c *gin.Context) {
 			result := db.Where("username = ? AND password = ?", username, MD5.ChangeMD5(password)).First(&user)
 			if result.Error == nil {
 				LoginReturn := make(map[string]interface{})
-				token, _ := tools.GenerateToken(username, password)
+				token, _ := tools.GenerateToken(username, password, int(user.ID))
 				LoginReturn["token"] = token
 				LoginReturn["user"] = user
 				c.JSON(200, returnBody.OK.WithData(LoginReturn))

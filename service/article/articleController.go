@@ -2,8 +2,10 @@ package article
 
 import (
 	"Notes-go-project/model/databaseModel"
+	"Notes-go-project/utility/changePage"
 	"Notes-go-project/utility/databaseConnection"
 	"Notes-go-project/utility/logData"
+	"Notes-go-project/utility/middleware/JWT"
 	"Notes-go-project/utility/returnBody"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -27,6 +29,7 @@ type UpadteArticleTypeRequestBody struct {
 func CreateArticle(c *gin.Context) {
 	var article databaseModel.Article
 	_ = c.ShouldBind(&article)
+	article.UserID = uint(JWT.UserId)
 	flag, message := databaseModel.Validator(&article)
 	if flag {
 		var count int64
@@ -48,6 +51,7 @@ func CreateArticle(c *gin.Context) {
 		return
 	}
 }
+
 func UpadteArticle(c *gin.Context) {
 	var article databaseModel.Article
 	_ = c.BindJSON(&article)
@@ -67,6 +71,7 @@ func UpadteArticle(c *gin.Context) {
 		return
 	}
 }
+
 func UpadteArticleType(c *gin.Context) {
 	//var article databaseModel.Article
 	//var requestBody UpadteArticleTypeRequestBody
@@ -217,6 +222,44 @@ func FindArticle(c *gin.Context) {
 	}
 
 }
+
+func FindArticleDiscuss(c *gin.Context) {
+	var Discuss []databaseModel.Discuss
+	articleId := c.Param("articleId")
+	result := db.Where("article_link_id = ? ", articleId).Find(&Discuss)
+	if result.Error == nil {
+		c.JSON(200, returnBody.OK.WithData(Discuss))
+	} else {
+		logData.WriterLog().Error(result.Error)
+		c.JSON(200, returnBody.Err.WithMsg("查询失败，请重试！！！"))
+		return
+	}
+
+}
+
+func AddArticleDiscuss(c *gin.Context) {
+	var Discuss databaseModel.Discuss
+	var result *gorm.DB
+	_ = c.ShouldBind(&Discuss)
+	Discuss.UserID = uint(JWT.UserId)
+	flag, message := databaseModel.Validator(&Discuss)
+	if flag {
+		//return
+		result = db.Create(&Discuss)
+		if result.Error == nil {
+			c.JSON(200, returnBody.OK.WithMsg("评论成功！！！"))
+		} else {
+			logData.WriterLog().Error(result.Error)
+			c.JSON(200, returnBody.Err.WithMsg("评论失败，请重试！！！"))
+			return
+		}
+	} else {
+		c.JSON(200, returnBody.ErrParam.WithMsg(message))
+		return
+	}
+
+}
+
 func DeleteArticle(c *gin.Context) {
 	var article databaseModel.Article
 	id := c.Param("id")
@@ -231,13 +274,14 @@ func DeleteArticle(c *gin.Context) {
 	}
 
 }
+
 func ArticlePrivateList(c *gin.Context) {
 	page, _ := strconv.Atoi(c.Query("page"))
 	//var article []databaseModel.Article
 	var classify []databaseModel.Classify
 	var errType int32
 	var count int64
-	classifyRes := db.Where("user_id = ?", 9).Find(&classify)
+	classifyRes := db.Where("user_id = ?", JWT.UserId).Find(&classify)
 
 	Arr := make([]interface{}, classifyRes.RowsAffected)
 	if classifyRes.Error == nil {
@@ -245,8 +289,8 @@ func ArticlePrivateList(c *gin.Context) {
 			var results []map[string]interface{}
 			type Set map[string]interface{}
 			s := make(Set)
-			result := db.Table("article").Where("deleted_at is null").Order("sort desc").Count(&count).Where("classify = ?", classify[index].ID).Find(&results)
-			s["id"] = strconv.Itoa(int(classify[index].ID))
+			result := db.Table("article").Where("user_id=?", JWT.UserId).Where("deleted_at is null").Order("sort desc").Count(&count).Where("classify = ?", classify[index].ClassId).Find(&results)
+			s["id"] = strconv.Itoa(int(classify[index].ClassId))
 			s["children"] = results
 			s["classify"] = classify[index].Label
 			if result.Error != nil {
@@ -264,13 +308,34 @@ func ArticlePrivateList(c *gin.Context) {
 		dataInfo["count"] = count
 		dataInfo["page"] = page
 		dataInfo["list"] = Arr
-
 		c.JSON(200, returnBody.OK.WithData(dataInfo))
 	} else {
 
 		c.JSON(200, returnBody.Err.WithMsg("查询失败，请重试！！！"))
 		return
 	}
+
+}
+
+func ArticlePublicList(c *gin.Context) {
+	var article []databaseModel.Article
+	var result *gorm.DB
+	var count int64
+
+	result = db.Model(article).Preload("ArticleLink").Where("public = ?", 1).Count(&count).Scopes(changePage.Paginate(1, 20)).Find(&article)
+
+	if result.Error == nil {
+		var dataInfo = make(map[string]interface{})
+		dataInfo["count"] = count
+		dataInfo["page"] = 1
+		dataInfo["list"] = article
+		c.JSON(200, returnBody.OK.WithData(dataInfo))
+	} else {
+		logData.WriterLog().Error(result.Error)
+		c.JSON(200, returnBody.Err.WithMsg("查询失败，请重试！！！"))
+	}
+
+	return
 
 }
 

@@ -9,6 +9,7 @@ import (
 type User struct {
 	gorm.Model
 	Name     string `gorm:"column:name;type:varchar(20);"  json:"name" required:"true"  placeholder:"请输入昵称"`
+	Avatar   string `gorm:"column:avatar;type:varchar(500);"  json:"avatar" required:"true"  placeholder:"请输入昵称"`
 	Username string `gorm:"column:username;type:varchar(20);" json:"username" required:"true" placeholder:"请输入用户名"`
 	Password string `gorm:"column:password;type:varchar(200);" json:"password" required:"true" placeholder:"请输入密码"`
 	Email    string `gorm:"column:email;type:varchar(36);" json:"email" required:"true" placeholder:"请输入邮箱"`
@@ -28,7 +29,7 @@ type Article struct {
 	Abstract    string  `gorm:"column:abstract;type:varchar(36);" json:"abstract" required:"true"  placeholder:"请输入简单描述"`
 	Status      int     `gorm:"column:status;type:int;" json:"status" `
 	ContentHtml string  `gorm:"column:contentHtml;type:MEDIUMTEXT;" json:"contentHtml" required:"true"  placeholder:"请输入具体类容"`
-	Public      string  `gorm:"column:public;varchar(200);" json:"public"`
+	Public      bool    `gorm:"column:public;default false;" json:"public"`
 	Classify    string  `gorm:"column:classify;varchar(200);" json:"classify"`
 	Sort        float64 `gorm:"column:sort;type:decimal(15,10);" json:"sort"`
 	ArticleLink []ArticleLink
@@ -43,8 +44,11 @@ type ArticleLink struct {
 }
 type Discuss struct {
 	gorm.Model
-	ArticleLinkID uint
-	UserID        uint
+	ArticleLinkID uint          `gorm:"column:article_link_id;type:varchar(20);" json:"article_link_id" `
+	UserID        uint          `gorm:"column:user_id;type:varchar(20);" json:"user_id"`
+	FatherId      *int          `gorm:"column:father_id;type:varchar(20);DEFAULT 0" json:"father_id"`
+	Name          string        `gorm:"column:name;type:varchar(20);" json:"name"`
+	Avatar        string        `gorm:"column:avatar;type:varchar(500);"  json:"avatar"`
 	Comment       string        `gorm:"column:comment;type:varchar(500);" json:"comment"`
 	Status        int           `gorm:"column:status;type:int;" json:"status"`
 	ArticleLink   []ArticleLink `gorm:"many2many:articleLink_discuss"`
@@ -52,8 +56,9 @@ type Discuss struct {
 
 type Classify struct {
 	gorm.Model
-	UserID uint
-	Label  string `gorm:"column:label;type:varchar(200);" json:"label"`
+	UserID  uint
+	Label   string `gorm:"column:label;type:varchar(200);" json:"label"`
+	ClassId uint   `gorm:"column:classId;" json:"classId"`
 }
 
 type EmailList struct {
