@@ -37,7 +37,9 @@ func CreateArticle(c *gin.Context) {
 		db.Table("article").Count(&count)
 		addIndex = 588
 		article.Sort = addIndex + float64(count)
-		result := db.Create(&article)
+		article.ArticleLink.GiveLike = 1
+		article.ArticleLink.StepOn = 1
+		result := db.Save(&article)
 		logData.WriterLog().Info(&article)
 		if result.Error == nil {
 			c.JSON(200, returnBody.OK.WithMsg("创建成功！！！"))

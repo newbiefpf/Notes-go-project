@@ -9,7 +9,7 @@ import (
 type User struct {
 	gorm.Model
 	Name     string `gorm:"column:name;type:varchar(20);"  json:"name" required:"true"  placeholder:"请输入昵称"`
-	Avatar   string `gorm:"column:avatar;type:varchar(500);"  json:"avatar" required:"true"  placeholder:"请输入昵称"`
+	Avatar   string `gorm:"column:avatar;type:varchar(500);"  json:"avatar"`
 	Username string `gorm:"column:username;type:varchar(20);" json:"username" required:"true" placeholder:"请输入用户名"`
 	Password string `gorm:"column:password;type:varchar(200);" json:"password" required:"true" placeholder:"请输入密码"`
 	Email    string `gorm:"column:email;type:varchar(36);" json:"email" required:"true" placeholder:"请输入邮箱"`
@@ -20,6 +20,7 @@ type User struct {
 	Article  []Article
 	Discuss  []Discuss
 	Classify []Classify
+	Messages []Messages
 }
 type Article struct {
 	gorm.Model
@@ -32,26 +33,27 @@ type Article struct {
 	Public      bool    `gorm:"column:public;default false;" json:"public"`
 	Classify    string  `gorm:"column:classify;varchar(200);" json:"classify"`
 	Sort        float64 `gorm:"column:sort;type:decimal(15,10);" json:"sort"`
-	ArticleLink []ArticleLink
+	ArticleLink ArticleLink
 }
 
 type ArticleLink struct {
 	gorm.Model
-	ArticleID uint
-	StepOn    int       `gorm:"column:stepOn;type:int;" json:"stepOn"`
-	GiveLike  int       `gorm:"column:giveLike;type:int;" json:"giveLike"`
-	Discuss   []Discuss `gorm:"many2many:articleLink_discuss"`
+	ArticleID    uint
+	Hot          int `gorm:"column:hot;type:int;default: 0" json:"hot"`
+	StepOn       int `gorm:"column:stepOn;type:int;default: 0" json:"stepOn"`
+	GiveLike     int `gorm:"column:giveLike;type:int;default: 0" json:"giveLike"`
+	DiscussCount int `gorm:"column:discussCount;type:int;default: 0" json:"discussCount"`
+	Discuss      Discuss
 }
 type Discuss struct {
 	gorm.Model
-	ArticleLinkID uint          `gorm:"column:article_link_id;type:varchar(20);" json:"article_link_id" `
-	UserID        uint          `gorm:"column:user_id;type:varchar(20);" json:"user_id"`
-	FatherId      *int          `gorm:"column:father_id;type:varchar(20);DEFAULT 0" json:"father_id"`
-	Name          string        `gorm:"column:name;type:varchar(20);" json:"name"`
-	Avatar        string        `gorm:"column:avatar;type:varchar(500);"  json:"avatar"`
-	Comment       string        `gorm:"column:comment;type:varchar(500);" json:"comment"`
-	Status        int           `gorm:"column:status;type:int;" json:"status"`
-	ArticleLink   []ArticleLink `gorm:"many2many:articleLink_discuss"`
+	ArticleLinkID uint   `gorm:"column:article_link_id;type:varchar(20);" json:"article_link_id" `
+	UserID        uint   `gorm:"column:user_id;type:varchar(20);" json:"user_id"`
+	FatherId      *int   `gorm:"column:father_id;type:varchar(20);DEFAULT 0" json:"father_id"`
+	Name          string `gorm:"column:name;type:varchar(20);" json:"name"`
+	Avatar        string `gorm:"column:avatar;type:varchar(500);"  json:"avatar"`
+	Comment       string `gorm:"column:comment;type:varchar(500);" json:"comment"`
+	Status        int    `gorm:"column:status;type:int;" json:"status"`
 }
 
 type Classify struct {
@@ -65,6 +67,17 @@ type EmailList struct {
 	gorm.Model
 	Email string `gorm:"column:email;type:varchar(200);unique_index" json:"email"`
 	Code  string `gorm:"column:code;type:varchar(200);" json:"code"`
+}
+
+type Messages struct {
+	gorm.Model
+	UserID         uint   `gorm:"column:user_id;"json:"userId"`
+	FormUserName   string `gorm:"column:formUserName;type:varchar(500);"  json:"formUserName"`
+	FormUserId     uint   `gorm:"column:formUserId;type:varchar(30);"  json:"formUserId"`
+	FormUserAvatar string `gorm:"column:formUserAvatar;type:varchar(500);"  json:"formUserAvatar"`
+	Message        string `gorm:"column:message;type:MEDIUMTEXT;"  json:"message"`
+	Status         int    `gorm:"column:status;type:varchar(30);"  json:"status"`
+	Mark           bool   `gorm:"column:mark;default:true;"  json:"mark"`
 }
 
 //必填
