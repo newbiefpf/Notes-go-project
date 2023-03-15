@@ -15,7 +15,7 @@ readRecord = "TOML读取成功"
     password = "root" #密码
     host = "127.0.0.1" #数据库地址，可以是Ip或者域名
     port = 3306 #数据库端口
-    Dbname = "noteProject" #数据库名
+    Dbname = "note" #数据库名
     timeout = "10s" #连接超时，10秒
 [logFile]
     LOG_ROUTER_PATH="logFile/logs"

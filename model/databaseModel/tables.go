@@ -21,6 +21,7 @@ type User struct {
 	Discuss  []Discuss
 	Classify []Classify
 	Messages []Messages
+	//chitchat []chitchat
 }
 type Article struct {
 	gorm.Model
@@ -30,7 +31,7 @@ type Article struct {
 	Abstract    string  `gorm:"column:abstract;type:varchar(36);" json:"abstract" required:"true"  placeholder:"请输入简单描述"`
 	Status      int     `gorm:"column:status;type:int;" json:"status" `
 	ContentHtml string  `gorm:"column:contentHtml;type:MEDIUMTEXT;" json:"contentHtml" required:"true"  placeholder:"请输入具体类容"`
-	Public      bool    `gorm:"column:public;default false;" json:"public"`
+	Public      *bool   `gorm:"column:public;default:false;" json:"public"`
 	Classify    string  `gorm:"column:classify;varchar(200);" json:"classify"`
 	Sort        float64 `gorm:"column:sort;type:decimal(15,10);" json:"sort"`
 	ArticleLink ArticleLink
@@ -54,6 +55,7 @@ type Discuss struct {
 	Avatar        string `gorm:"column:avatar;type:varchar(500);"  json:"avatar"`
 	Comment       string `gorm:"column:comment;type:varchar(500);" json:"comment"`
 	Status        int    `gorm:"column:status;type:int;" json:"status"`
+	Messages      Messages
 }
 
 type Classify struct {
@@ -72,12 +74,22 @@ type EmailList struct {
 type Messages struct {
 	gorm.Model
 	UserID         uint   `gorm:"column:user_id;"json:"userId"`
+	DiscussID      uint   `gorm:"column:discussId;"json:"discussId"`
 	FormUserName   string `gorm:"column:formUserName;type:varchar(500);"  json:"formUserName"`
-	FormUserId     uint   `gorm:"column:formUserId;type:varchar(30);"  json:"formUserId"`
+	ToUserId       uint   `gorm:"column:toUserId;type:varchar(30);"  json:"toUserId"`
 	FormUserAvatar string `gorm:"column:formUserAvatar;type:varchar(500);"  json:"formUserAvatar"`
 	Message        string `gorm:"column:message;type:MEDIUMTEXT;"  json:"message"`
 	Status         int    `gorm:"column:status;type:varchar(30);"  json:"status"`
 	Mark           bool   `gorm:"column:mark;default:true;"  json:"mark"`
+}
+
+type chitchat struct {
+	gorm.Model
+	//UserID uint `gorm:"column:user_id;"json:"userId"`
+	ToUserId   uint `gorm:"column:toUserId;type:varchar(30);"  json:"toUserId"`
+	FormUserId uint `gorm:"column:formUserId;type:varchar(30);"  json:"formUserId"`
+	
+	Groups int `gorm:"column:groups;type:varchar(250);"  json:"groups"`
 }
 
 //必填

@@ -2,6 +2,7 @@ package manage_socket_conn
 
 import (
 	"Notes-go-project/model/socketModel"
+	"Notes-go-project/service/message"
 	"fmt"
 	"sync"
 )
@@ -63,6 +64,8 @@ func (c *charRoomThread) Start() {
 				msg.Msg.Data["form_user_id"] = msg.FormUserID
 				if msg.FormUserID == int(msg.Msg.Data["to_user_id"].(float64)) {
 					msg.Msg.Data["content"] = "pong"
+					msg.Msg.Data["type"] = "oneself"
+					msg.Msg.Data["messageCount"] = message.GetMessageMarks(int(msg.Msg.Data["to_user_id"].(float64)))
 				}
 				//	如果发送不成功 说明接收方不在线
 				_ = GetUserSet().SendMsgByUid(int(msg.Msg.Data["to_user_id"].(float64)), msg.Msg)

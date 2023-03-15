@@ -240,10 +240,16 @@ func FindArticleDiscuss(c *gin.Context) {
 }
 
 func AddArticleDiscuss(c *gin.Context) {
+	toUserId, _ := strconv.Atoi(c.Param("toUserId"))
 	var Discuss databaseModel.Discuss
+	//var Messages databaseModel.Messages
+
 	var result *gorm.DB
 	_ = c.ShouldBind(&Discuss)
 	Discuss.UserID = uint(JWT.UserId)
+	Discuss.Messages.UserID = Discuss.UserID
+	Discuss.Messages.Message = Discuss.Comment
+	Discuss.Messages.ToUserId = uint(toUserId)
 	flag, message := databaseModel.Validator(&Discuss)
 	if flag {
 		//return

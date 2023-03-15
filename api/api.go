@@ -2,6 +2,7 @@ package api
 
 import (
 	"Notes-go-project/service/article"
+	"Notes-go-project/service/message"
 	"Notes-go-project/service/user"
 	"Notes-go-project/socketConnection"
 	"Notes-go-project/utility/httpNet"
@@ -43,7 +44,7 @@ func LaunchProject() {
 		//获取所有文章评论
 		v1.GET("/articleDiscuss/:articleId", article.FindArticleDiscuss)
 		//添加评论
-		v1.PUT("/articleDiscuss", article.AddArticleDiscuss)
+		v1.PUT("/articleDiscuss/:toUserId", article.AddArticleDiscuss)
 		//修改文章
 		v1.POST("/article", article.UpadteArticle)
 		//修改文章类型和排序
@@ -54,6 +55,12 @@ func LaunchProject() {
 		v1.POST("/uploadImages", article.UploadImages)
 		//删除文章
 		v1.DELETE("/article/:id", article.DeleteArticle)
+		//获取消息列表
+		v1.GET("/messages", message.GetMessageList)
+		//消息修改
+		v1.POST("/message/:messageId", message.ChangeMessage)
+		//消息消息
+		v1.DELETE("/message/:messageId", message.DeleteMessage)
 
 	}
 
