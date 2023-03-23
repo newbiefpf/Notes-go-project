@@ -21,6 +21,7 @@ type User struct {
 	Discuss  []Discuss
 	Classify []Classify
 	Messages []Messages
+	Chitchat []Chitchat
 	//chitchat []chitchat
 }
 type Article struct {
@@ -83,13 +84,12 @@ type Messages struct {
 	Mark           bool   `gorm:"column:mark;default:true;"  json:"mark"`
 }
 
-type chitchat struct {
+type Chitchat struct {
 	gorm.Model
-	//UserID uint `gorm:"column:user_id;"json:"userId"`
-	ToUserId   uint `gorm:"column:toUserId;type:varchar(30);"  json:"toUserId"`
-	FormUserId uint `gorm:"column:formUserId;type:varchar(30);"  json:"formUserId"`
-	
-	Groups int `gorm:"column:groups;type:varchar(250);"  json:"groups"`
+	UserID   uint   `gorm:"column:user_id;"json:"userId"`
+	ToUserId uint   `gorm:"column:toUserId;"  json:"toUserId"`
+	GroupArr string `gorm:"column:groupArr;type:varchar(250);"  json:"groupArr"`
+	Message  string `gorm:"column:message;type:varchar(1000);"  json:"message"`
 }
 
 //必填

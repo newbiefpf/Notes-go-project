@@ -61,6 +61,8 @@ func LaunchProject() {
 		v1.POST("/message/:messageId", message.ChangeMessage)
 		//消息消息
 		v1.DELETE("/message/:messageId", message.DeleteMessage)
+		//获取私信聊天
+		v1.GET("/chatMessage", message.GetChatMessage)
 
 	}
 

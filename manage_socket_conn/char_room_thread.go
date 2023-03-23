@@ -66,6 +66,13 @@ func (c *charRoomThread) Start() {
 					msg.Msg.Data["content"] = "pong"
 					msg.Msg.Data["type"] = "oneself"
 					msg.Msg.Data["messageCount"] = message.GetMessageMarks(int(msg.Msg.Data["to_user_id"].(float64)))
+				} else {
+					switch msg.Msg.Data["type"] {
+					case "chat":
+
+						message.ChatMessage(int(msg.Msg.Data["to_user_id"].(float64)), int(msg.Msg.Data["user_id"].(float64)), msg.Msg.Data["content"])
+
+					}
 				}
 				//	如果发送不成功 说明接收方不在线
 				_ = GetUserSet().SendMsgByUid(int(msg.Msg.Data["to_user_id"].(float64)), msg.Msg)

@@ -52,7 +52,8 @@ func GetDB() *gorm.DB {
 	var classify databaseModel.Classify
 	var emailList databaseModel.EmailList
 	var Messages databaseModel.Messages
+	var Chitchat databaseModel.Chitchat
 
-	db.AutoMigrate(&user, &article, &articleLink, &discuss, &classify, &emailList, &Messages)
+	db.AutoMigrate(&user, &article, &articleLink, &discuss, &classify, &emailList, &Messages, &Chitchat)
 	return db
 }
