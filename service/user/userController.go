@@ -99,6 +99,41 @@ func Login(c *gin.Context) {
 
 }
 
+func UpdateUser(c *gin.Context) {
+	var user databaseModel.User
+
+	_ = c.ShouldBind(&user)
+	result := db.Model(&user).Where("id = ? ", JWT.UserId).Updates(
+		map[string]interface{}{
+			"name":     user.Name,
+			"avatar":   user.Avatar,
+			"username": user.Username,
+			"password": MD5.ChangeMD5(user.Password),
+			"age":      user.Age,
+			"sex":      user.Sex,
+			"phone":    user.Phone})
+
+	if result.Error == nil {
+		c.JSON(200, returnBody.OK.WithMsg("修改成功！！！"))
+	} else {
+		c.JSON(200, returnBody.Err.WithMsg("修改失败，请重试！！！"))
+	}
+
+}
+
+func GetUser(c *gin.Context) {
+	var user databaseModel.User
+
+	result := db.Find(&user)
+
+	if result.Error == nil {
+		c.JSON(200, returnBody.OK.WithData(user))
+	} else {
+		c.JSON(200, returnBody.Err.WithMsg("修改失败，请重试！！！"))
+	}
+
+}
+
 func Register(c *gin.Context) {
 	var user databaseModel.User
 	_ = c.BindJSON(&user)

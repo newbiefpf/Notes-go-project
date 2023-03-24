@@ -54,6 +54,78 @@ func CreateArticle(c *gin.Context) {
 	}
 }
 
+func FindArticleClassify(c *gin.Context) {
+	var Classify []databaseModel.Classify
+	result := db.Where("user_id = ?", JWT.UserId).Order("classId asc").Find(&Classify)
+	if result.Error == nil {
+		c.JSON(200, returnBody.OK.WithData(Classify))
+	} else {
+		c.JSON(200, returnBody.Err.WithMsg("查询分类失败，请重试！！！"))
+	}
+}
+
+func UpdateArticleClassify(c *gin.Context) {
+	var Classify databaseModel.Classify
+	var flag bool
+	type RequestBody struct {
+		ID      int    `json:"id"`
+		UserID  int    `json:"userId"`
+		ClassId int    `json:"classId"`
+		Label   string `json:"label"`
+		Status  int    `json:"status"`
+	}
+	var request []RequestBody
+	_ = c.ShouldBind(&request)
+	for _, item := range request {
+		if item.ID == 0 {
+			if item.Status == 1 {
+				Classify.Label = item.Label
+				Classify.ClassId = uint(item.ClassId)
+				Classify.UserID = uint(JWT.UserId)
+				result := db.Create(&Classify)
+				if result.Error == nil {
+					flag = false
+				} else {
+					flag = true
+					break
+				}
+			}
+
+		} else {
+			if item.Status == 1 {
+				result := db.Model(&Classify).Where("user_id = ? ", JWT.UserId).Where("classId = ?", item.ClassId).Update("label", item.Label)
+				if result.Error == nil {
+					flag = false
+				} else {
+					flag = true
+					break
+				}
+			} else {
+				var article databaseModel.Article
+				articleRes := db.Where("user_id = ? ", JWT.UserId).Where("classify = ?", item.ClassId).First(&article)
+				if articleRes.RowsAffected == 1 {
+					c.JSON(200, returnBody.Err.WithMsg("删除的分类中存在文章，无法直接删除，请重试！！！"))
+					return
+					break
+				}
+				result := db.Where("user_id = ? ", JWT.UserId).Where("id = ?", item.ID).Delete(&Classify)
+				if result.Error == nil {
+					flag = false
+				} else {
+					flag = true
+					break
+				}
+			}
+		}
+	}
+	if flag {
+		c.JSON(200, returnBody.Err.WithMsg("修改分类部分失败，请重试！！！"))
+	} else {
+		c.JSON(200, returnBody.OK.WithMsg("修改分类全部成功！！！"))
+	}
+
+}
+
 func UpadteArticle(c *gin.Context) {
 	var article databaseModel.Article
 	_ = c.BindJSON(&article)

@@ -34,11 +34,20 @@ func LaunchProject() {
 	//需要token的分组
 	v1 := r.Group("/api").Use(JWT.JWT())
 	{
+
 		v1.GET("/test", user.ProjectTese)
 		//测试连接口
 		v1.GET("/ping", user.Ping)
 		//新增文章article
 		v1.PUT("/article", article.CreateArticle)
+		//修改个人信息
+		v1.POST("/user", user.UpdateUser)
+		//获取个人信息
+		v1.GET("/user", user.GetUser)
+		//获取文章分类
+		v1.GET("/articleClassify", article.FindArticleClassify)
+		//更新文章分类
+		v1.POST("/articleClassify", article.UpdateArticleClassify)
 		//获取所有文章
 		v1.GET("/articleList", article.ArticlePrivateList)
 		//获取所有文章评论

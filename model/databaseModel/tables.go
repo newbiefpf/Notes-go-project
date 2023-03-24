@@ -16,7 +16,7 @@ type User struct {
 	Code     string `gorm:"column:code;type:varchar(36);" json:"code" required:"true" placeholder:"请输入验证码"`
 	Age      int    `gorm:"column:age;type:int;" json:"age" `
 	Sex      int    `gorm:"column:sex;type:int;" json:"sex"`
-	Phone    string `gorm:"column:tel;type:varchar(20);" json:"phone"`
+	Phone    string `gorm:"column:phone;type:varchar(20);" json:"phone"`
 	Article  []Article
 	Discuss  []Discuss
 	Classify []Classify
